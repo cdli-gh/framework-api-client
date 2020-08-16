@@ -1,0 +1,22 @@
+{
+  "name": "cdli-api-client",
+  "version": "0.0.0",
+  "description": "A client for the CDLI REST API",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cdli",
+    "cuneiform",
+    "api",
+    "client"
+  ],
+  "author": "Lars Willighagen",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.0",
+    "parse-link-header": "^1.0.1",
+    "yargs": "^15.4.1"
+  }
+}
