@@ -1,10 +1,13 @@
 const fs = require('fs')
 const fetch = require('node-fetch')
 const parseLinks = require('parse-link-header')
-const rdf = require('rdf')
 const Emitter = require('./emitter')
 
 function progressBar (state) {
+    if (state.error) {
+        return state.error
+    }
+
     const current = state.current.page
     const last = state.last.page
     const SIZE = 50
@@ -23,11 +26,17 @@ module.exports.Client = class Client extends Emitter {
     }
 
     async * _fetchPages (path, format) {
-        let next = this.base + path + '?limit=100'
+        let next = this.base + path
         while (next) {
             const response = await fetch(next, {
                 headers: { Accept: format }
             })
+
+            if (response.status >= 400) {
+                const error = `Path '${path}' returned code ${response.status}`
+                this._pageStates[path] = { error }
+                throw new Error(error)
+            }
 
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
@@ -54,16 +63,15 @@ module.exports.Client = class Client extends Emitter {
         )
     }
 
-    async export (entities = [], fileName = '-') {
-        const file = fileName === '-'
-            ? process.stdout
-            : fs.createWriteStream(fileName)
+    async export (entities = [], fileName) {
+        const file = fileName
+            ? fs.createWriteStream(fileName)
+            : process.stdout
 
         this._setupPageStates(entities)
 
-        return Promise.all(entities.map(async entity => {
+        return Promise.allSettled(entities.map(async entity => {
             const pages = this._fetchPages(entity, 'application/n-triples')
-            let number = 0
 
             for await (const page of pages) {
                 this._logPageStates()
