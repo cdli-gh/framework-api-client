@@ -17,6 +17,15 @@ function progressBar (state) {
     return `[${bar}] ${current}/${last}`
 }
 
+const MIME_TYPES = {
+    ndjson: 'application/x-ndjson',
+    csv: 'text/csv',
+    tsv: 'text/tab-separated-values',
+    ntriples: 'application/n-triples',
+    bibtex: 'application/x-bibtex',
+    atf: 'text/x-c-atf',
+}
+
 module.exports.Client = class Client extends Emitter {
     constructor (base) {
         super()
@@ -26,10 +35,17 @@ module.exports.Client = class Client extends Emitter {
     }
 
     async * _fetchPages (path, format) {
+        const mimeType = MIME_TYPES[format]
+        if (!mimeType) {
+            throw new TypeError(`Format "${format}" unknown`)
+        }
+
+        const skipHeader = format === 'csv' || format === 'tsv'
+
         let next = this.base + path
         while (next) {
             const response = await fetch(next, {
-                headers: { Accept: format }
+                headers: { Accept: mimeType }
             })
 
             if (response.status >= 400) {
@@ -41,6 +57,12 @@ module.exports.Client = class Client extends Emitter {
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
             this._pageStates[path] = links
+
+            if (skipHeader && links && links.prev) {
+                const text = await response.text()
+                yield text.slice(text.indexOf('\n') + 1)
+                continue
+            }
 
             yield response.text()
         }
@@ -63,7 +85,7 @@ module.exports.Client = class Client extends Emitter {
         )
     }
 
-    async export (entities = [], fileName) {
+    async export (format = 'ntriples', entities = [], fileName) {
         const file = fileName
             ? fs.createWriteStream(fileName)
             : process.stdout
@@ -71,7 +93,7 @@ module.exports.Client = class Client extends Emitter {
         this._setupPageStates(entities)
 
         return Promise.allSettled(entities.map(async entity => {
-            const pages = this._fetchPages(entity, 'application/n-triples')
+            const pages = this._fetchPages(entity, format)
 
             for await (const page of pages) {
                 this._logPageStates()

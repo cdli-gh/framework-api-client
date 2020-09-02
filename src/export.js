@@ -3,10 +3,6 @@ const CDLI = require('./client')
 exports.command = 'export'
 exports.describe = 'Export linked data'
 exports.builder = {
-  'output-file': {
-      alias: 'o',
-      description: 'Output file (outputs to stdout by default)'
-  },
   'entities': {
       alias: 'e',
       description: 'Which types of entities to fetch',
@@ -40,7 +36,7 @@ exports.handler = function (options) {
 
     console.time('Export')
     return client
-        .export(options.entities, options.outputFile)
+        .export(options.format, options.entities, options.outputFile)
         .then(entities => {
             console.timeEnd('Export')
 
