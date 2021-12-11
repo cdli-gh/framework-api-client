@@ -18,7 +18,7 @@
   "author": "Lars Willighagen",
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "parse-link-header": "^1.0.1",
     "yargs": "^15.4.1"
   }
