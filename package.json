@@ -7,7 +7,7 @@
     "cdli": "./cli.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint cli.js src/**"
   },
   "keywords": [
     "cdli",
@@ -22,5 +22,9 @@
     "node-fetch": "^2.6.1",
     "parse-link-header": "^2.0.0",
     "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3"
   }
 }
