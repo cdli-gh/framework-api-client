@@ -1,33 +1,33 @@
 const CDLI = require('./client')
 
 exports.command = 'export'
-exports.describe = 'Export linked data'
+exports.describe = 'Export catalogue and text data'
 exports.builder = {
-  'entities': {
-      alias: 'e',
-      description: 'Which types of entities to fetch',
-      type: 'array',
-      choices: [
-          'archives',
-          'artifacts',
-          'artifactsExternalResources',
-          'artifactsMaterials',
-          'collections',
-          'dates',
-          'dynasties',
-          'genres',
-          'inscriptions',
-          'languages',
-          'materials',
-          'materialAspects',
-          'materialColors',
-          'periods',
-          'proveniences',
-          'publications',
-          'regions',
-          'rulers'
-      ]
-  }
+    'entities': {
+        alias: 'e',
+        description: 'Which types of entities to fetch',
+        type: 'array',
+        choices: [
+            'archives',
+            'artifacts',
+            'artifactsExternalResources',
+            'artifactsMaterials',
+            'collections',
+            'dates',
+            'dynasties',
+            'genres',
+            'inscriptions',
+            'languages',
+            'materials',
+            'materialAspects',
+            'materialColors',
+            'periods',
+            'proveniences',
+            'publications',
+            'regions',
+            'rulers'
+        ]
+    }
 }
 
 exports.handler = function (options) {
