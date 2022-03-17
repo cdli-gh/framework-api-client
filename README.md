@@ -30,17 +30,20 @@ proveniences, inscriptions and periods.
     cdli [command]
 
     Commands:
-    cdli export  Export linked data
+      cdli export  Export linked data
 
     Options:
-    --version   Show version number                                      [boolean]
-    --host, -h  Host URL to use for API calls
-                                     [string] [default: "https://cdli.ucla.edu"]
-    --help      Show help                                                [boolean]
+      --version          Show version number                               [boolean]
+      --host, -h         Host URL to use for API calls
+                                         [string] [default: "https://cdli.ucla.edu"]
+      --format, -f       File format
+                      [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
+      --output-file, -o  Output file (outputs to stdout by default)
+      --help             Show help                                         [boolean]
 
 #### Export
 
-    cdli export
+    cli.js export
 
     Export linked data
 
@@ -48,8 +51,10 @@ proveniences, inscriptions and periods.
       --version          Show version number                               [boolean]
       --host, -h         Host URL to use for API calls
                                          [string] [default: "https://cdli.ucla.edu"]
-      --help             Show help                                         [boolean]
+      --format, -f       File format
+                      [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       --output-file, -o  Output file (outputs to stdout by default)
+      --help             Show help                                         [boolean]
       --entities, -e     Which types of entities to fetch
             [array] [choices: "archives", "artifacts", "artifactsExternalResources",
                 "artifactsMaterials", "collections", "dates", "dynasties", "genres",
