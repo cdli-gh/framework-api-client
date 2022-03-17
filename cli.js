@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
 const yargs = require('yargs')
-const CDLI = require('./src/client')
 
-const options = yargs
+yargs
     .option('host', {
         alias: 'h',
         type: 'string',
@@ -26,6 +25,7 @@ const options = yargs
         alias: 'o',
         description: 'Output file (outputs to stdout by default)'
     })
+    .boolean('auth')
     .command(require('./src/export'))
     .help()
     .argv

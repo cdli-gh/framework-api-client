@@ -1,3 +1,4 @@
+const FormData = require('form-data')
 const fs = require('fs')
 const fetch = require('node-fetch')
 const parseLinks = require('parse-link-header')
@@ -31,6 +32,7 @@ module.exports.Client = class Client extends Emitter {
         super()
 
         this.base = base
+        this._cookies = {}
         this._pageStates = {}
     }
 
@@ -45,8 +47,9 @@ module.exports.Client = class Client extends Emitter {
         let next = this.base + path
         while (next) {
             const response = await fetch(next, {
-                headers: { Accept: mimeType }
+                headers: { Accept: mimeType, ...this._getCookieHeaders() }
             })
+            this._setCookies(response)
 
             if (response.status >= 400) {
                 const error = `Path '${path}' returned code ${response.status}`
@@ -83,6 +86,62 @@ module.exports.Client = class Client extends Emitter {
             .map(([name, state]) => name.padEnd(30, ' ') + ': ' + progressBar(state))
             .join('\n')
         )
+    }
+
+    _getCookieHeaders () {
+        return {
+            'X-CSRF-Token': this._cookies.csrfToken,
+            Cookie: Object.entries(this._cookies).map(pair => pair.join('=')).join('; ')
+        }
+    }
+
+    _setCookies (response) {
+        const header = response.headers.raw()['set-cookie']
+
+        if (!header) {
+            return
+        }
+
+        for (const cookie of header) {
+            const [key, ...value] = cookie.split(';')[0].split('=')
+            this._cookies[key] = decodeURIComponent(value.join('='))
+        }
+    }
+
+    async login (username, password, token) {
+        if (!this._cookies.csrfToken) {
+            this._setCookies(await fetch(this.base + 'login'))
+        }
+
+        const loginBody = new FormData()
+        loginBody.append('username', username)
+        loginBody.append('password', password)
+
+        const loginResponse = await fetch(this.base + 'login', {
+            method: 'POST',
+            body: loginBody,
+            headers: this._getCookieHeaders()
+        })
+        this._setCookies(loginResponse)
+
+        if (loginResponse.status >= 400) {
+            throw new Error('Login failed')
+        }
+
+        const tokenBody = new FormData()
+        tokenBody.append('code', token || 'random_code_value')
+
+        const tokenResponse = await fetch(loginResponse.url, {
+            method: 'POST',
+            body: tokenBody,
+            headers: this._getCookieHeaders(),
+            redirect: 'manual'
+        })
+        this._setCookies(tokenResponse)
+
+        if (tokenResponse.status >= 400) {
+            throw new Error('2FA failed')
+        }
     }
 
     async export (format = 'ntriples', entities = [], fileName) {
