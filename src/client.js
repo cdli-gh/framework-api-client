@@ -57,6 +57,13 @@ module.exports.Client = class Client extends Emitter {
                 throw new Error(error)
             }
 
+            const responseType = response.headers.get('content-type').split(';')[0]
+            if (responseType !== mimeType) {
+                const error = `Path '${path}' did not return '${format}' but '${responseType}'`
+                this._pageStates[path] = { error }
+                throw new Error(error)
+            }
+
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
             this._pageStates[path] = links
