@@ -8,7 +8,7 @@ function promisify (fn) {
 exports.command = 'export'
 exports.describe = 'Export catalogue and text data'
 exports.builder = {
-    'entities': {
+    entities: {
         alias: 'e',
         description: 'Which types of entities to fetch',
         type: 'array',

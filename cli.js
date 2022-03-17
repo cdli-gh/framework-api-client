@@ -2,6 +2,7 @@
 
 const yargs = require('yargs')
 
+// eslint-disable-next-line no-unused-expressions
 yargs
     .option('host', {
         alias: 'h',

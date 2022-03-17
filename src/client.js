@@ -24,7 +24,7 @@ const MIME_TYPES = {
     tsv: 'text/tab-separated-values',
     ntriples: 'application/n-triples',
     bibtex: 'application/x-bibtex',
-    atf: 'text/x-c-atf',
+    atf: 'text/x-c-atf'
 }
 
 module.exports.Client = class Client extends Emitter {
