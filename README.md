@@ -3,6 +3,9 @@
 Client for CDLI framework API.
 
   - [Install](#install)
+  - [Getting started](#getting-started)
+    - [Command-Line Interface](#command-line-interface)
+    - [Programming Interface](#programming-interface)
 
 ## Install
 
