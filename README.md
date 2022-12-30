@@ -41,7 +41,7 @@ proveniences, inscriptions and periods.
       --output-file, -o  Output file (outputs to stdout by default)
       --help             Show help                                         [boolean]
 
-#### Export
+### Export
 
     cli.js export
 
