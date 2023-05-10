@@ -7,7 +7,7 @@ yargs
     .option('host', {
         alias: 'h',
         type: 'string',
-        default: 'https://cdli.ucla.edu/',
+        default: 'https://cdli.mpiwg-berlin.mpg.de/',
         description: 'Host URL to use for API calls'
     })
     .option('format', {

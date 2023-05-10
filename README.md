@@ -35,7 +35,7 @@ proveniences, inscriptions and periods.
     Options:
       --version          Show version number                               [boolean]
       --host, -h         Host URL to use for API calls
-                                         [string] [default: "https://cdli.ucla.edu"]
+                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
       --format, -f       File format
                       [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       --output-file, -o  Output file (outputs to stdout by default)
@@ -50,7 +50,7 @@ proveniences, inscriptions and periods.
     Options:
       --version          Show version number                               [boolean]
       --host, -h         Host URL to use for API calls
-                                         [string] [default: "https://cdli.ucla.edu"]
+                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
       --format, -f       File format
                       [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       --output-file, -o  Output file (outputs to stdout by default)
