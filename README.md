@@ -18,6 +18,10 @@ Or install it locally into an existing project:
 
     npm install https://github.com/cdli-gh/framework-api-client
 
+Alternatively, the command can be run with [npx](https://www.npmjs.com/package/npx):
+
+    npx cdli-api-client --help
+
 ## Getting started
 
 Right now, the client only supports a basic operation: exporting parts of the
