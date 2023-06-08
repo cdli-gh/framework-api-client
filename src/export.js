@@ -6,7 +6,7 @@ function promisify (fn) {
 }
 
 exports.command = 'export'
-exports.describe = 'Export catalogue and text data'
+exports.describe = 'Export catalog and text data'
 exports.builder = {
     entities: {
         alias: 'e',

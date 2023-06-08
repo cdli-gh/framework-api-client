@@ -34,7 +34,7 @@ proveniences, inscriptions and periods.
     cdli [command]
 
     Commands:
-      cdli export  Export linked data
+      cdli export  Export catalog and text data
 
     Options:
       --version          Show version number                               [boolean]
@@ -47,9 +47,9 @@ proveniences, inscriptions and periods.
 
 #### Export
 
-    cli.js export
+    cdli export
 
-    Export linked data
+    Export catalog and text data
 
     Options:
       --version          Show version number                               [boolean]
