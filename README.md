@@ -24,10 +24,12 @@ Alternatively, the command can be run with [npx](https://www.npmjs.com/package/n
 
 ## Getting started
 
-Right now, the client only supports a basic operation: exporting parts of the
-database as linked data (or specifically N-Triples). The parts that can be
-chosen are the types of entities in the catalogue, such as artifacts, materials,
-proveniences, inscriptions and periods.
+Right now, the client supports two basic operations:
+
+  - [exporting](#export) parts of the database as linked data (or specifically
+    N-Triples). The parts that can be chosen are the types of entities in the
+    catalogue, such as artifacts, materials, proveniences, inscriptions and periods.
+  - [searching](#search) artifacts in the database.
 
 ### Command-Line Interface
 
@@ -35,6 +37,7 @@ proveniences, inscriptions and periods.
 
     Commands:
       cdli export  Export catalog and text data
+      cdli search  Export catalog and text data
 
     Options:
       --version          Show version number                               [boolean]
@@ -102,6 +105,10 @@ could do this:
                       [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       -o, --output-file  Output file (outputs to stdout by default)
           --help         Show help                                         [boolean]
+
+Example:
+
+    cdli search -q holland --fk genre --fv "Official or display" -f tsv
 
 ### Programming Interface
 
