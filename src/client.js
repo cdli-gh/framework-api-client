@@ -9,7 +9,17 @@ function progressBar (state) {
         return state.error
     }
 
-    return `page: ${state.current.page}`
+    if (!state.last || !state.last.page) {
+      return `page: ${state.current.page}`
+    }
+
+    const current = state.current.page
+    const last = state.last.page
+    const SIZE = 50
+    const progress = SIZE * current / last
+    const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
+
+    return `[${bar}] ${current}/${last}`
 }
 
 const MIME_TYPES = {
