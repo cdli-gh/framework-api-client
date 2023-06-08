@@ -73,6 +73,36 @@ could do this:
       --entities archives proveniences regions \
       --output-file places.nt
 
+#### Search
+
+    cdli search
+
+    Search artifacts in the catalog
+
+    Simple search:
+      -q, --query                Search query                                [array]
+          --queryCategory, --qc  Search category
+            [array] [choices: "keyword", "publication", "collection", "provenience",
+                                   "period", "transliteration", "translation", "id"]
+          --queryOperator, --qo  Search operator      [array] [choices: "AND", "OR"]
+
+    Advanced search:
+          --advancedField, --af  Search field                                [array]
+          --advancedQuery, --aq  Search query                                [array]
+
+    Filter:
+          --filterField, --fk  Filter by field                               [array]
+          --filterValue, --fv  Filter by value                               [array]
+
+    Options:
+          --version      Show version number                               [boolean]
+      -h, --host         Host URL to use for API calls
+                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
+      -f, --format       File format
+                      [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
+      -o, --output-file  Output file (outputs to stdout by default)
+          --help         Show help                                         [boolean]
+
 ### Programming Interface
 
 ```js

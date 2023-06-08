@@ -28,5 +28,6 @@ yargs
     })
     .boolean('auth')
     .command(require('./src/export'))
+    .command(require('./src/search'))
     .help()
     .argv

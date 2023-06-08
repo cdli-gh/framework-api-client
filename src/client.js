@@ -40,7 +40,7 @@ module.exports.Client = class Client extends Emitter {
         this._pageStates = {}
     }
 
-    async * _fetchPages (path, format) {
+    async * _fetchPages (path, format, label = path) {
         const mimeType = MIME_TYPES[format]
         if (!mimeType) {
             throw new TypeError(`Format "${format}" unknown`)
@@ -56,21 +56,21 @@ module.exports.Client = class Client extends Emitter {
             this._setCookies(response)
 
             if (response.status >= 400) {
-                const error = `Path '${path}' returned code ${response.status}`
-                this._pageStates[path] = { error }
+                const error = `'${label}' returned code ${response.status}`
+                this._pageStates[label] = { error }
                 throw new Error(error)
             }
 
             const responseType = response.headers.get('content-type').split(';')[0]
             if (responseType !== mimeType) {
-                const error = `Path '${path}' did not return '${format}' but '${responseType}'`
-                this._pageStates[path] = { error }
+                const error = `'${label}' did not return '${format}' but '${responseType}'`
+                this._pageStates[label] = { error }
                 throw new Error(error)
             }
 
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
-            this._pageStates[path] = links
+            this._pageStates[label] = links
 
             if (skipHeader && links && links.prev) {
                 const text = await response.text()
@@ -170,5 +170,21 @@ module.exports.Client = class Client extends Emitter {
                 file.write(page)
             }
         }))
+    }
+
+    async search (format = 'ntriples', query, fileName) {
+        const file = fileName
+            ? fs.createWriteStream(fileName)
+            : process.stdout
+
+        const label = 'search'
+        this._setupPageStates([label])
+
+        const pages = this._fetchPages('search?' + query, format, label)
+
+        for await (const page of pages) {
+            this._logPageStates()
+            file.write(page)
+        }
     }
 }
