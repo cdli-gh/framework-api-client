@@ -76,6 +76,16 @@ could do this:
       --entities archives proveniences regions \
       --output-file places.nt
 
+
+Fetching all artifacts from the live server could look like this:
+
+     cdli export \
+      --host https://cdli.mpiwg-berlin.mpg.de/ \
+      --entities artifacts \
+      --format csv \
+      --output-file artifacts.csv
+
+
 #### Search
 
     cdli search
@@ -106,17 +116,10 @@ could do this:
       -o, --output-file  Output file (outputs to stdout by default)
           --help         Show help                                         [boolean]
 
-Example 1:
+Example:
 
     cdli search -q holland --fk genre --fv "Official or display" -f tsv
 
-Example 2:
-
-        cdli export \
-      --host https://cdli.mpiwg-berlin.mpg.de/ \
-      --entities artifacts \
-      --format csv \
-      --output-file artifacts.csv
 
 ### Programming Interface
 
