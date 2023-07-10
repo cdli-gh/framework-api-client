@@ -106,9 +106,17 @@ could do this:
       -o, --output-file  Output file (outputs to stdout by default)
           --help         Show help                                         [boolean]
 
-Example:
+Example 1:
 
     cdli search -q holland --fk genre --fv "Official or display" -f tsv
+
+Example 2:
+
+        cdli export \
+      --host https://cdli.mpiwg-berlin.mpg.de/ \
+      --entities artifacts \
+      --format csv \
+      --output-file artifacts.csv
 
 ### Programming Interface
 
