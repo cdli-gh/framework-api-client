@@ -16,7 +16,7 @@ function progressBar (state) {
     const current = state.current.page
     const last = state.last.page
     const SIZE = 50
-    const progress = SIZE * Math.floor(current / last)
+    const progress = Math.floor(SIZE * current / last) || current > 0
     const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
 
     return `[${bar}] ${current}/${last}`
@@ -95,7 +95,10 @@ module.exports.Client = class Client extends Emitter {
     _logPageStates () {
         const states = Object.entries(this._pageStates)
         this._log(`\u001b[${states.length}A` + states
-            .map(([name, state]) => name.padEnd(30, ' ') + ': ' + progressBar(state))
+            .map(([name, state]) => {
+                const line = name.padEnd(30, ' ') + ': ' + progressBar(state)
+                return line + ' '.repeat(process.stdout.columns - line.length)
+            })
             .join('\n')
         )
     }
