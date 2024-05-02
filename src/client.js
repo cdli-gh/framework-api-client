@@ -71,7 +71,7 @@ module.exports.Client = class Client extends Emitter {
 
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
-            this._pageStates[label] = links
+            this._updatePageState(label, links)
 
             if (skipHeader && links && links.prev) {
                 const text = await response.text()
@@ -90,6 +90,18 @@ module.exports.Client = class Client extends Emitter {
     _setupPageStates (entities) {
         this._pageStates = {}
         this._log(entities.join('\n'))
+    }
+
+    _updatePageState (entity, links) {
+        if (links === null) {
+            links = { current: { page: 1 }, last: { page: 1 } }
+        }
+
+        if (this._pageStates[entity] && !links.last) {
+            links.last = this._pageStates[entity].last
+        }
+
+        this._pageStates[entity] = links
     }
 
     _logPageStates () {
