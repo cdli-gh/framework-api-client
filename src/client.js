@@ -27,6 +27,7 @@ const MIME_TYPES = {
     csv: 'text/csv',
     tsv: 'text/tab-separated-values',
     ntriples: 'application/n-triples',
+    ttl: 'text/turtle',
     bibtex: 'application/x-bibtex',
     atf: 'text/x-c-atf'
 }

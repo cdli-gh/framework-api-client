@@ -18,6 +18,7 @@ yargs
             'csv',
             'tsv',
             'ntriples',
+            'ttl',
             'bibtex',
             'atf'
         ]
