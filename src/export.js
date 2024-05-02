@@ -19,6 +19,7 @@ exports.builder = {
             'external-resources',
             'genres',
             'inscriptions',
+            'journals',
             'languages',
             'materials',
             'material-aspects',
