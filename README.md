@@ -79,12 +79,24 @@ could do this:
 
 Fetching all artifacts from the live server could look like this:
 
-     cdli export \
+    cdli export \
       --host https://cdli.mpiwg-berlin.mpg.de/ \
       --entities artifacts \
       --format csv \
       --output-file artifacts.csv
 
+Export all linked data:
+
+    cdli export \
+      --host https://cdli.mpiwg-berlin.mpg.de/ \
+      --entities abbreviations archives artifacts artifact-assets \
+        artifacts-external-resources artifacts-materials authors \
+        collections dynasties entities-external-resources entities-names \
+        external-resources genres inscriptions journals languages \
+        locations materials material-aspects material-colors periods \
+        proveniences publications regions rulers \
+      --format ntriples
+      --output-file all.nt
 
 #### Search
 
