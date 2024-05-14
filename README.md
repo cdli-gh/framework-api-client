@@ -95,7 +95,7 @@ Export all linked data:
         external-resources genres inscriptions journals languages \
         locations materials material-aspects material-colors periods \
         proveniences publications regions rulers \
-      --format ntriples
+      --format ntriples \
       --output-file all.nt
 
 #### Search
