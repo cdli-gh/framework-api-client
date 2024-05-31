@@ -7,6 +7,7 @@ exports.builder = {
         alias: 'e',
         description: 'Which types of entities to fetch',
         type: 'array',
+        default: [],
         choices: [
             'abbreviations',
             'archives',
@@ -35,6 +36,12 @@ exports.builder = {
             'regions',
             'rulers'
         ]
+    },
+    index: {
+        alias: 'i',
+        description: 'Which index(es) to fetch',
+        type: 'array',
+        default: []
     }
 }
 
@@ -43,7 +50,7 @@ exports.handler = async function (options) {
 
     console.time('Export')
     return client
-        .export(options.format, options.entities, options.outputFile)
+        .export(options.format, [...options.entities, ...options.index], options.outputFile)
         .then(entities => {
             console.timeEnd('Export')
 
