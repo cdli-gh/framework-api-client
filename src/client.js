@@ -81,7 +81,7 @@ module.exports.Client = class Client extends Emitter {
             }
 
             if (response.status >= 400) {
-                const error = `'${label}' returned code ${response.status}`
+                const error = `'${next}' returned code ${response.status}`
                 this._updatePageState(label, { error })
                 throw new Error(error)
             }
@@ -91,7 +91,7 @@ module.exports.Client = class Client extends Emitter {
 
             const responseType = response.headers.get('content-type').split(';')[0]
             if (responseType !== mimeType) {
-                const error = `'${label}' did not return '${format}' but '${responseType}'`
+                const error = `'${next}' did not return '${format}' but '${responseType}'`
                 this._updatePageState(label, { error })
                 throw new Error(error)
             }
