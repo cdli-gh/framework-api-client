@@ -9,17 +9,29 @@ function progressBar (state) {
         return state.error
     }
 
+    let bar
+
     if (!state.last || !state.last.page) {
-      return `page: ${state.current.page}`
+        bar = `page: ${state.current.page}`
+    } else {
+        const current = state.current.page
+        const last = state.last.page
+        const SIZE = 50
+        const progress = Math.floor(SIZE * current / last) || current > 0
+        const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
+
+        bar = `[${bar}] ${current}/${last}`
     }
 
-    const current = state.current.page
-    const last = state.last.page
-    const SIZE = 50
-    const progress = Math.floor(SIZE * current / last) || current > 0
-    const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
+    if (state.retry) {
+        bar += `, retry ${state.retry}`
+    }
 
-    return `[${bar}] ${current}/${last}`
+    return bar
+}
+
+function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 const MIME_TYPES = {
@@ -37,6 +49,8 @@ module.exports.Client = class Client extends Emitter {
         super()
 
         this.base = base
+        this.retryMax = 3
+        this.retryDelay = 500
         this._cookies = {}
         this._pageStates = {}
     }
@@ -49,6 +63,9 @@ module.exports.Client = class Client extends Emitter {
 
         const skipHeader = format === 'csv' || format === 'tsv'
 
+        this._updatePageState(label)
+
+        let retries = 0
         let next = this.base + path
         while (next) {
             const response = await fetch(next, {
@@ -56,11 +73,21 @@ module.exports.Client = class Client extends Emitter {
             })
             this._setCookies(response)
 
+            if (response.status === 504 && retries < this.retryMax) {
+                await sleep(this.retryDelay)
+                retries++
+                this._pageStates[label].retry = retries
+                this._logPageStates()
+                continue
+            }
+
             if (response.status >= 400) {
                 const error = `'${label}' returned code ${response.status}`
                 this._pageStates[label] = { error }
                 throw new Error(error)
             }
+
+            retries = 0
 
             const responseType = response.headers.get('content-type').split(';')[0]
             if (responseType !== mimeType) {
