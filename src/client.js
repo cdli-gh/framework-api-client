@@ -9,10 +9,10 @@ function progressBar (state) {
         return state.error
     }
 
-    let bar
+    let message
 
     if (!state.last || !state.last.page) {
-        bar = `page: ${state.current.page}`
+        message = `page: ${state.current.page}`
     } else {
         const current = state.current.page
         const last = state.last.page
@@ -20,14 +20,14 @@ function progressBar (state) {
         const progress = Math.floor(SIZE * current / last) || current > 0
         const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
 
-        bar = `[${bar}] ${current}/${last}`
+        message = `[${bar}] ${current}/${last}`
     }
 
     if (state.retry) {
-        bar += `, retry ${state.retry}`
+        message += `, retry ${state.retry}`
     }
 
-    return bar
+    return message
 }
 
 function sleep (ms) {
