@@ -11,7 +11,9 @@ function progressBar (state) {
 
     let message
 
-    if (!state.last || !state.last.page) {
+    if (!state.current || !state.current.page) {
+        message = ''
+    } else if (!state.last || !state.last.page) {
         message = `page: ${state.current.page}`
     } else {
         const current = state.current.page
@@ -63,8 +65,6 @@ module.exports.Client = class Client extends Emitter {
 
         const skipHeader = format === 'csv' || format === 'tsv'
 
-        this._updatePageState(label)
-
         let retries = 0
         let next = this.base + path
         while (next) {
@@ -76,23 +76,23 @@ module.exports.Client = class Client extends Emitter {
             if (response.status === 504 && retries < this.retryMax) {
                 await sleep(this.retryDelay)
                 retries++
-                this._pageStates[label].retry = retries
-                this._logPageStates()
+                this._updatePageState(label, { retry: retries })
                 continue
             }
 
             if (response.status >= 400) {
                 const error = `'${label}' returned code ${response.status}`
-                this._pageStates[label] = { error }
+                this._updatePageState(label, { error })
                 throw new Error(error)
             }
 
             retries = 0
+            this._updatePageState(label, { retry: retries })
 
             const responseType = response.headers.get('content-type').split(';')[0]
             if (responseType !== mimeType) {
                 const error = `'${label}' did not return '${format}' but '${responseType}'`
-                this._pageStates[label] = { error }
+                this._updatePageState(label, { error })
                 throw new Error(error)
             }
 
@@ -103,10 +103,9 @@ module.exports.Client = class Client extends Emitter {
             if (skipHeader && links && links.prev) {
                 const text = await response.text()
                 yield text.slice(text.indexOf('\n') + 1)
-                continue
+            } else {
+                yield response.text()
             }
-
-            yield response.text()
         }
     }
 
@@ -120,15 +119,12 @@ module.exports.Client = class Client extends Emitter {
     }
 
     _updatePageState (entity, links) {
-        if (links === null) {
-            links = { current: { page: 1 }, last: { page: 1 } }
+        if (!this._pageStates[entity]) {
+            this._pageStates[entity] = {}
         }
 
-        if (this._pageStates[entity] && !links.last) {
-            links.last = this._pageStates[entity].last
-        }
-
-        this._pageStates[entity] = links
+        Object.assign(this._pageStates[entity], links)
+        this._logPageStates()
     }
 
     _logPageStates () {
@@ -209,7 +205,6 @@ module.exports.Client = class Client extends Emitter {
             const pages = this._fetchPages(entity, format)
 
             for await (const page of pages) {
-                this._logPageStates()
                 file.write(page)
             }
         }))
@@ -226,7 +221,6 @@ module.exports.Client = class Client extends Emitter {
         const pages = this._fetchPages('search?' + query, format, label)
 
         for await (const page of pages) {
-            this._logPageStates()
             file.write(page)
         }
     }
