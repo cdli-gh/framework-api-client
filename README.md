@@ -12,11 +12,11 @@ Client for CDLI framework API.
 A prerequisite for this client is [Node.JS](https://nodejs.org/en/) and a package
 manager like [npm](https://npmjs.com), which usually comes with it.
 
-    npm install -g https://github.com/cdli-gh/framework-api-client
+    npm install -g cdli-api-client
 
 Or install it locally into an existing project:
 
-    npm install https://github.com/cdli-gh/framework-api-client
+    npm install cdli-api-client
 
 Alternatively, the command can be run with [npx](https://www.npmjs.com/package/npx):
 
@@ -55,18 +55,22 @@ Right now, the client supports two basic operations:
     Export catalog and text data
 
     Options:
-      --version          Show version number                               [boolean]
-      --host, -h         Host URL to use for API calls
-                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
-      --format, -f       File format
-                      [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
-      --output-file, -o  Output file (outputs to stdout by default)
-      --help             Show help                                         [boolean]
-      --entities, -e     Which types of entities to fetch
-            [array] [choices: "archives", "artifacts", "artifactsExternalResources",
-                "artifactsMaterials", "collections", "dates", "dynasties", "genres",
-      "inscriptions", "languages", "materials", "materialAspects", "materialColors",
-                     "periods", "proveniences", "publications", "regions", "rulers"]
+          --version      Show version number                               [boolean]
+      -h, --host         Host URL to use for API calls
+                            [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
+      -f, --format       File format
+              [choices: "ndjson", "csv", "tsv", "ntriples", "ttl", "bibtex", "atf"]
+      -o, --output-file  Output file (outputs to stdout by default)
+          --help         Show help                                         [boolean]
+      -e, --entities     Which types of entities to fetch
+      [array] [choices: "abbreviations", "archives", "artifacts", "artifact-assets",
+                              "artifacts-external-resources", "artifacts-materials",
+          "entities-external-resources", "entities-names", "authors", "collections",
+            "dynasties", "external-resources", "genres", "inscriptions", "journals",
+      "languages", "locations", "materials", "material-aspects", "material-colors",
+          "periods", "places", "proveniences", "publications", "regions", "rulers"]
+                                                                      [default: []]
+      -i, --index        Which index(es) to fetch              [array] [default: []]
 
 So to export place-related entities from a locally-running framework instance you
 could do this:
@@ -75,7 +79,6 @@ could do this:
       --host http://localhost:2354/ \
       --entities archives proveniences regions \
       --output-file places.nt
-
 
 Fetching all artifacts from the live server could look like this:
 
@@ -90,11 +93,10 @@ Export all linked data:
     cdli export \
       --host https://cdli.mpiwg-berlin.mpg.de/ \
       --entities abbreviations archives artifacts artifact-assets \
-        artifacts-external-resources artifacts-materials authors \
-        collections dynasties entities-external-resources entities-names \
-        external-resources genres inscriptions journals languages \
-        locations materials material-aspects material-colors periods \
-        proveniences publications regions rulers \
+        artifacts-external-resources artifacts-materials authors collections \
+        dynasties entities-external-resources entities-names external-resources \
+        genres inscriptions journals languages locations materials material-aspects \
+        material-colors periods places proveniences publications regions rulers \
       --format ntriples \
       --output-file all.nt
 
