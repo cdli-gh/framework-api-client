@@ -1,7 +1,9 @@
 const { getClient } = require('./command.js')
 
 function buildQuery (options) {
-    const parts = []
+    const parts = [
+        ['limit', '1000']
+    ]
 
     if (options.filterField) {
         const filters = Math.min(options.filterField.length, options.filterValue.length)
