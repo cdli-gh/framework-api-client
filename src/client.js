@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 const parseLinks = require('parse-link-header')
 const Emitter = require('./emitter')
 
-function progressBar (state) {
+function progressBar (state, size = 50) {
     if (state.error) {
         return state.error
     }
@@ -18,9 +18,8 @@ function progressBar (state) {
     } else {
         const current = state.current.page
         const last = state.last.page
-        const SIZE = 50
-        const progress = Math.floor(SIZE * current / last) || current > 0
-        const bar = ('='.repeat(progress) + ' '.repeat(SIZE - progress)).replace(/= /, '> ')
+        const progress = Math.floor(size * current / last) || current > 0
+        const bar = ('='.repeat(progress) + ' '.repeat(size - progress)).replace(/= /, '> ')
 
         message = `[${bar}] ${current}/${last}`
     }
@@ -30,6 +29,10 @@ function progressBar (state) {
     }
 
     return message
+}
+
+function isFinished (state) {
+    return !state.next || state.next.page === state.current.page
 }
 
 function sleep (ms) {
@@ -109,13 +112,14 @@ module.exports.Client = class Client extends Emitter {
         }
     }
 
-    _log (...args) {
-        this.trigger('log', args.join(' ') + '\n')
+    _log (message) {
+        this.trigger('log', message)
     }
 
     _setupPageStates (entities) {
         this._pageStates = {}
-        this._log(entities.join('\n'))
+        this._pageStatesHeight = entities.length
+        this._log(entities.join('\n') + `\n`)
     }
 
     _updatePageState (entity, links) {
@@ -129,13 +133,37 @@ module.exports.Client = class Client extends Emitter {
 
     _logPageStates () {
         const states = Object.entries(this._pageStates)
-        this._log(`\u001b[${states.length}A` + states
-            .map(([name, state]) => {
-                const line = name.padEnd(30, ' ') + ': ' + progressBar(state)
-                return line + ' '.repeat(process.stdout.columns - line.length)
+        const width = process.stdout.columns
+        const doubleLineWidth = width - 23
+        const singleLineWidth = doubleLineWidth - 32
+
+        const log = states
+            .sort((a, b) => isFinished(a[1]) - isFinished(b[1]))
+            .flatMap(([name, state]) => {
+                if (singleLineWidth >= 15) {
+                    return name.padEnd(30, ' ') + ': ' + progressBar(state, singleLineWidth)
+                } else if (doubleLineWidth >= 15) {
+                    return [name, progressBar(state, doubleLineWidth)]
+                }
+
+                let line = name + ': ' + progress.replace(/^\[.+?\]/, '')
+                if (line.length > width) {
+                    return line
+                }
+
+                const lines = []
+                while (line.length > width) {
+                    lines.push(line.slice(0, width))
+                    line = line.slice(width)
+                }
+
+                return lines
             })
-            .join('\n')
-        )
+            .map(line => line.padEnd(width, ' ') + '\n')
+            .slice(0, process.stdout.rows - 1)
+
+        this._log(`\u001b[${this._pageStatesHeight}F` + log.join(''))
+        this._pageStatesHeight = log.length
     }
 
     _getCookieHeaders () {
