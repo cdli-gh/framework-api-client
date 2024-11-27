@@ -4,37 +4,6 @@ const fetch = require('node-fetch')
 const parseLinks = require('parse-link-header')
 const Emitter = require('./emitter')
 
-function progressBar (state, size = 50) {
-    if (state.error) {
-        return state.error
-    }
-
-    let message
-
-    if (!state.current || !state.current.page) {
-        message = ''
-    } else if (!state.last || !state.last.page) {
-        message = `page: ${state.current.page}`
-    } else {
-        const current = state.current.page
-        const last = state.last.page
-        const progress = Math.floor(size * current / last) || current > 0
-        const bar = ('='.repeat(progress) + ' '.repeat(size - progress)).replace(/= /, '> ')
-
-        message = `[${bar}] ${current}/${last}`
-    }
-
-    if (state.retry) {
-        message += `, retry ${state.retry}`
-    }
-
-    return message
-}
-
-function isFinished (state) {
-    return !state.next || state.next.page === state.current.page
-}
-
 function sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -49,6 +18,10 @@ const MIME_TYPES = {
     atf: 'text/x-c-atf'
 }
 
+module.exports.STATUS_SETTING_UP = 0
+module.exports.STATUS_RUNNING = 1
+module.exports.STATUS_DONE = 2
+
 module.exports.Client = class Client extends Emitter {
     constructor (base) {
         super()
@@ -57,7 +30,6 @@ module.exports.Client = class Client extends Emitter {
         this.retryMax = 3
         this.retryDelay = 500
         this._cookies = {}
-        this._pageStates = {}
     }
 
     async * _fetchPages (path, format, label = path) {
@@ -79,29 +51,29 @@ module.exports.Client = class Client extends Emitter {
             if (response.status === 504 && retries < this.retryMax) {
                 await sleep(this.retryDelay)
                 retries++
-                this._updatePageState(label, { retry: retries })
+                this.trigger('entityStateChange', { label, retry: retries })
                 continue
             }
 
             if (response.status >= 400) {
                 const error = `'${next}' returned code ${response.status}`
-                this._updatePageState(label, { error })
+                this.trigger('entityStateChange', { label, error })
                 throw new Error(error)
             }
 
             retries = 0
-            this._updatePageState(label, { retry: retries })
+            this.trigger('entityStateChange', { label, retry: retries, status: module.exports.STATUS_RUNNING })
 
             const responseType = response.headers.get('content-type').split(';')[0]
             if (responseType !== mimeType) {
                 const error = `'${next}' did not return '${format}' but '${responseType}'`
-                this._updatePageState(label, { error })
+                this.trigger('entityStateChange', { label, error })
                 throw new Error(error)
             }
 
             const links = parseLinks(response.headers.get('Link'))
             next = links && links.next && links.next.url
-            this._updatePageState(label, links)
+            this.trigger('entityStateChange', { label, ...links })
 
             if (skipHeader && links && links.prev) {
                 const text = await response.text()
@@ -110,60 +82,8 @@ module.exports.Client = class Client extends Emitter {
                 yield response.text()
             }
         }
-    }
 
-    _log (message) {
-        this.trigger('log', message)
-    }
-
-    _setupPageStates (entities) {
-        this._pageStates = {}
-        this._pageStatesHeight = entities.length
-        this._log(entities.join('\n') + `\n`)
-    }
-
-    _updatePageState (entity, links) {
-        if (!this._pageStates[entity]) {
-            this._pageStates[entity] = {}
-        }
-
-        Object.assign(this._pageStates[entity], links)
-        this._logPageStates()
-    }
-
-    _logPageStates () {
-        const states = Object.entries(this._pageStates)
-        const width = process.stdout.columns
-        const doubleLineWidth = width - 23
-        const singleLineWidth = doubleLineWidth - 32
-
-        const log = states
-            .sort((a, b) => isFinished(a[1]) - isFinished(b[1]))
-            .flatMap(([name, state]) => {
-                if (singleLineWidth >= 15) {
-                    return name.padEnd(30, ' ') + ': ' + progressBar(state, singleLineWidth)
-                } else if (doubleLineWidth >= 15) {
-                    return [name, progressBar(state, doubleLineWidth)]
-                }
-
-                let line = name + ': ' + progress.replace(/^\[.+?\]/, '')
-                if (line.length > width) {
-                    return line
-                }
-
-                const lines = []
-                while (line.length > width) {
-                    lines.push(line.slice(0, width))
-                    line = line.slice(width)
-                }
-
-                return lines
-            })
-            .map(line => line.padEnd(width, ' ') + '\n')
-            .slice(0, process.stdout.rows - 1)
-
-        this._log(`\u001b[${this._pageStatesHeight}F` + log.join(''))
-        this._pageStatesHeight = log.length
+        this.trigger('entityStateChange', { label, status: module.exports.STATUS_DONE })
     }
 
     _getCookieHeaders () {
@@ -227,9 +147,9 @@ module.exports.Client = class Client extends Emitter {
             ? fs.createWriteStream(fileName)
             : process.stdout
 
-        this._setupPageStates(entities)
-
         return Promise.allSettled(entities.map(async entity => {
+            this.trigger('entityStateChange', { label: entity, status: module.exports.STATUS_SETTING_UP })
+
             const pages = this._fetchPages(entity, format)
 
             for await (const page of pages) {
@@ -244,7 +164,7 @@ module.exports.Client = class Client extends Emitter {
             : process.stdout
 
         const label = 'search'
-        this._setupPageStates([label])
+        this.trigger('entityStateChange', { label, status: module.exports.STATUS_SETTING_UP })
 
         const pages = this._fetchPages('search?' + query, format, label)
 
