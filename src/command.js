@@ -78,7 +78,8 @@ module.exports.getClient = async function (options) {
         Object.assign(pageStates[label], state)
 
         const log = logPageStates(pageStates)
-        process.stderr.write(`\u001b[${pageStatesHeight}F` + log.join(''))
+        const cursor = pageStatesHeight ? `\u001b[${pageStatesHeight}F` : ''
+        process.stderr.write(cursor + log.join(''))
         pageStatesHeight = log.length
     })
 
