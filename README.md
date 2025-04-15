@@ -42,7 +42,7 @@ Right now, the client supports two basic operations:
     Options:
       --version          Show version number                               [boolean]
       --host, -h         Host URL to use for API calls
-                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
+                                           [string] [default: "https://cdli.earth/"]
       --format, -f       File format
                       [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       --output-file, -o  Output file (outputs to stdout by default)
@@ -57,9 +57,9 @@ Right now, the client supports two basic operations:
     Options:
           --version      Show version number                               [boolean]
       -h, --host         Host URL to use for API calls
-                            [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
+                                           [string] [default: "https://cdli.earth/"]
       -f, --format       File format
-              [choices: "ndjson", "csv", "tsv", "ntriples", "ttl", "bibtex", "atf"]
+               [choices: "ndjson", "csv", "tsv", "ntriples", "ttl", "bibtex", "atf"]
       -o, --output-file  Output file (outputs to stdout by default)
           --help         Show help                                         [boolean]
       -e, --entities     Which types of entities to fetch
@@ -67,9 +67,9 @@ Right now, the client supports two basic operations:
                               "artifacts-external-resources", "artifacts-materials",
           "entities-external-resources", "entities-names", "authors", "collections",
             "dynasties", "external-resources", "genres", "inscriptions", "journals",
-      "languages", "locations", "materials", "material-aspects", "material-colors",
-          "periods", "places", "proveniences", "publications", "regions", "rulers"]
-                                                                      [default: []]
+       "languages", "locations", "materials", "material-aspects", "material-colors",
+           "periods", "places", "proveniences", "publications", "regions", "rulers"]
+                                                                       [default: []]
       -i, --index        Which index(es) to fetch              [array] [default: []]
 
 So to export place-related entities from a locally-running framework instance you
@@ -83,7 +83,7 @@ could do this:
 Fetching all artifacts from the live server could look like this:
 
     cdli export \
-      --host https://cdli.mpiwg-berlin.mpg.de/ \
+      --host https://cdli.earth/ \
       --entities artifacts \
       --format csv \
       --output-file artifacts.csv
@@ -91,7 +91,7 @@ Fetching all artifacts from the live server could look like this:
 Export all linked data:
 
     cdli export \
-      --host https://cdli.mpiwg-berlin.mpg.de/ \
+      --host https://cdli.earth/ \
       --entities abbreviations archives artifacts artifact-assets \
         artifacts-external-resources artifacts-materials authors collections \
         dynasties entities-external-resources entities-names external-resources \
@@ -124,7 +124,7 @@ Export all linked data:
     Options:
           --version      Show version number                               [boolean]
       -h, --host         Host URL to use for API calls
-                             [string] [default: "https://cdli.mpiwg-berlin.mpg.de/"]
+                             [string] [default: "https://cdli.earth/"]
       -f, --format       File format
                       [choices: "ndjson", "csv", "tsv", "ntriples", "bibtex", "atf"]
       -o, --output-file  Output file (outputs to stdout by default)

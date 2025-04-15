@@ -7,7 +7,7 @@ yargs
     .option('host', {
         alias: 'h',
         type: 'string',
-        default: 'https://cdli.mpiwg-berlin.mpg.de/',
+        default: 'https://cdli.earth/',
         description: 'Host URL to use for API calls'
     })
     .option('format', {
