@@ -43,6 +43,12 @@ exports.builder = {
         description: 'Which index(es) to fetch',
         type: 'array',
         default: []
+    },
+    outputFile: {
+        alias: 'o',
+        description: 'Output file name(s)',
+        type: 'array',
+        default: []
     }
 }
 
@@ -51,15 +57,34 @@ exports.handler = async function (options) {
     const console = new Console(process.stderr)
 
     console.time('Export')
-    return client
-        .export(options.format, [...options.entities, ...options.index], options.outputFile)
-        .then(entities => {
-            console.timeEnd('Export')
 
-            for (const { status, reason } of entities) {
-                if (status === 'rejected') {
-                    console.error(reason)
-                }
-            }
+    const tasks = []
+    const targets = [...options.entities, ...options.index]
+    if (targets.length !== options.outputFile.length) {
+        console.error('The number of entities and output files must match.')
+        process.exit(1)
+    }
+
+    for (let i = 0; i < targets.length; i++) {
+        tasks.push(
+            client
+                .export(options.format, [targets[i]], options.outputFile[i])
+                .then(entities => {
+                    for (const { status, reason } of entities) {
+                        if (status === 'rejected') {
+                            console.error(reason)
+                        }
+                    }
+                })
+        )
+    }
+
+    return Promise.all(tasks)
+        .then(() => {
+            console.timeEnd('Export')
+        })
+        .catch(err => {
+            console.error('Error during export:', err)
+            console.timeEnd('Export')
         })
 }
