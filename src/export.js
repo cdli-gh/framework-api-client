@@ -1,3 +1,4 @@
+const { Console } = require('console')
 const { getClient } = require('./command.js')
 
 exports.command = 'export'
@@ -47,6 +48,7 @@ exports.builder = {
 
 exports.handler = async function (options) {
     const client = await getClient(options)
+    const console = new Console(process.stderr)
 
     console.time('Export')
     return client

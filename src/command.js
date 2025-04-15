@@ -30,7 +30,7 @@ function makeProgressBar (state, size = 50) {
 
 function logPageStates (pageStates) {
     const states = Object.entries(pageStates)
-    const width = process.stdout.columns
+    const width = process.stderr.columns || process.stdout.columns || 0
     const doubleLineWidth = width - 23
     const singleLineWidth = doubleLineWidth - 32
     const progressMinWidth = 10
@@ -44,7 +44,7 @@ function logPageStates (pageStates) {
                 return [name, makeProgressBar(state, doubleLineWidth)]
             }
 
-            let line = name + ': ' + progress.replace(/^\[.+?\]/, '')
+            let line = name + ': ' + makeProgressBar(state).replace(/^\[.+?\]/, '')
             if (line.length > width) {
                 return line
             }
@@ -58,7 +58,7 @@ function logPageStates (pageStates) {
             return lines
         })
         .map(line => line.padEnd(width, ' ') + '\n')
-        .slice(0, process.stdout.rows - 1)
+        .slice(0, process.stderr.rows - 1)
 }
 
 function promisify (fn) {
@@ -84,7 +84,7 @@ module.exports.getClient = async function (options) {
     })
 
     if (options.auth) {
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+        const rl = readline.createInterface({ input: process.stdin, output: process.stderr })
         const question = promisify(rl.question.bind(rl))
         const username = await question('username: ')
         const password = await question('password: ')

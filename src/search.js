@@ -1,3 +1,4 @@
+const { Console } = require('console')
 const { getClient } = require('./command.js')
 
 function buildQuery (options) {
@@ -84,6 +85,7 @@ exports.builder = {
 
 exports.handler = async function (options) {
     const client = await getClient(options)
+    const console = new Console(process.stderr)
 
     console.time('Search')
     return client
