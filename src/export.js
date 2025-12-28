@@ -12,8 +12,9 @@ exports.builder = {
         choices: [
             'abbreviations',
             'archives',
-            'artifacts',
             'artifact-assets',
+            'artifact-types',
+            'artifacts',
             'artifacts-external-resources',
             'artifacts-materials',
             'entities-external-resources',
