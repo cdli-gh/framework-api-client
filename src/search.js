@@ -27,7 +27,7 @@ function buildQuery (options) {
     if (options.advancedField) {
         const fields = Math.min(options.advancedField.length, options.advancedField.length)
         for (let i = 0; i < fields; i++) {
-            parts.push([options.advancedField[i], options.advancedValue[i]])
+            parts.push([options.advancedField[i], options.advancedQuery[i]])
         }
     }
 
