@@ -3,6 +3,7 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 const parseLinks = require('parse-link-header')
 const Emitter = require('./emitter')
+const validateExport = require('./export-validation')
 
 function sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -143,6 +144,8 @@ module.exports.Client = class Client extends Emitter {
     }
 
     async export (format = 'ntriples', entities = [], fileName) {
+        validateExport(format, entities)
+
         const file = fileName
             ? fs.createWriteStream(fileName)
             : process.stdout

@@ -1,5 +1,6 @@
 const { Console } = require('console')
 const { getClient } = require('./command.js')
+const validateExport = require('./export-validation.js')
 
 exports.command = 'export'
 exports.describe = 'Export catalog and text data'
@@ -48,12 +49,21 @@ exports.builder = {
 }
 
 exports.handler = async function (options) {
+    const entities = [...options.entities, ...options.index]
+    try {
+        validateExport(options.format, entities)
+    } catch (error) {
+        process.stderr.write(`Error: ${error.message}\n`)
+        process.exitCode = 1
+        return
+    }
+
     const client = await getClient(options)
     const console = new Console(process.stderr)
 
     console.time('Export')
     return client
-        .export(options.format, [...options.entities, ...options.index], options.outputFile)
+        .export(options.format, entities, options.outputFile)
         .then(entities => {
             console.timeEnd('Export')
 

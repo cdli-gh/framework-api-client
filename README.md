@@ -100,6 +100,25 @@ Export all linked data:
       --format ntriples \
       --output-file all.nt
 
+#### Exporting ATF
+
+ATF contains inscription text. Export it from `inscriptions`:
+
+```sh
+cdli export --host https://cdli.earth/ --entities inscriptions --format atf --output-file inscriptions.atf
+```
+
+The combination `--entities artifacts --format atf` returns empty pages from
+the API. The client rejects this combination before making requests or opening
+the output file, and suggests `inscriptions`. This also applies to JavaScript
+calls to `client.export()` and endpoint names passed through `--index`.
+When multiple entities are requested, all are checked before any export starts.
+Validation errors reject the library call and make the CLI exit with status 1.
+Empty responses for other combinations are still allowed.
+
+For JavaScript callers, use
+`client.export('atf', ['inscriptions'], 'inscriptions.atf')`.
+
 #### Search
 
     cdli search
@@ -154,3 +173,9 @@ client.export(['archives', 'proveniences', 'regions' ], 'places.nt')
         }
     })
 ```
+
+## Development
+
+Install the locked dependencies with `npm ci`. Run `npm test` for regression
+tests and `npm run lint` for style checks. The tests use Node.js's built-in test
+runner (Node.js 18 or later) and a local mock API; they do not contact CDLI.
