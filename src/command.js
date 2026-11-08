@@ -70,6 +70,10 @@ module.exports.getClient = async function (options) {
 
     const pageStates = {}
     let pageStatesHeight = 0
+    client.on('recoveryBackup', ({ path }) => {
+        process.stderr.write(`Saved pre-resume output to ${path}\n`)
+        pageStatesHeight = 0
+    })
     client.on('entityStateChange', ({ label, ...state }) => {
         if (!pageStates[label]) {
             pageStates[label] = {}

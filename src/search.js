@@ -80,7 +80,7 @@ exports.builder = {
         alias: 'fv',
         description: 'Filter by value',
         type: 'array'
-    },
+    }
 }
 
 exports.handler = async function (options) {
