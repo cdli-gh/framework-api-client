@@ -100,6 +100,67 @@ Export all linked data:
       --format ntriples \
       --output-file all.nt
 
+#### Resuming exports
+
+Use `--checkpoint` to start an export that can be resumed. Both the output and
+checkpoint paths must be new files; existing files are never overwritten:
+
+```sh
+cdli export --entities inscriptions --format atf \
+  --output-file inscriptions.atf --checkpoint inscriptions.progress.json
+```
+
+If the command is interrupted or reports an error, repeat it with `--resume`
+instead of `--checkpoint`, keeping the host, format, entities (in the same order),
+and output path identical:
+
+```sh
+cdli export --entities inscriptions --format atf \
+  --output-file inscriptions.atf --resume inscriptions.progress.json
+```
+
+Progress is saved after each complete page is written and flushed to disk. Resume
+verifies the saved output using a SHA-256 checksum and requests the next page.
+If the output contains bytes beyond the checkpoint, it first saves a full copy
+to a new `<output>.recovery-<random>` file, then removes the uncommitted bytes
+from the working output. The CLI prints the backup path; library callers can
+listen for the `recoveryBackup` event (`{ path }`). The backup is retained so
+an incorrect or tampered checkpoint cannot silently destroy the original data.
+Creating a backup requires enough free space for a second copy of the output;
+if it fails, recovery stops before changing the output. It reads the saved portion
+of the local output once to verify it. A completed checkpoint is retained, and
+resuming it does not download the data again. Errors exit with status 1.
+
+Checkpoint exports require an output file; stdout is not supported. Keep the
+checkpoint and output together without editing them. Checkpoints are trusted
+local state; their checksum detects output corruption, not checkpoint tampering.
+Run only one export per
+checkpoint/output pair at a time. Multiple entities are downloaded sequentially;
+their output is concatenated as with ordinary exports. For CSV/TSV, export each
+entity type separately because their columns may differ.
+
+Resume uses the API's pagination links. It does not freeze the server's dataset:
+if records or pagination change between runs, restart with new output and
+checkpoint paths. This feature does not provide a total record count or an
+arbitrary record offset. In particular, artifact counts and ATF transliteration
+counts are not interchangeable.
+
+Pagination links and HTTP redirects must remain on the configured host's origin
+(the same scheme, hostname, and port). Cross-origin destinations, including
+HTTPS-to-HTTP downgrades, are rejected before sending session credentials.
+
+The JavaScript client accepts the same options in a fourth argument:
+
+```js
+await client.export('atf', ['inscriptions'], 'inscriptions.atf', {
+    checkpoint: 'inscriptions.progress.json'
+})
+// After an interruption, in a new process:
+await client.export('atf', ['inscriptions'], 'inscriptions.atf', {
+    resume: 'inscriptions.progress.json'
+})
+```
+
 #### Search
 
     cdli search

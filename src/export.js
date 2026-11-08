@@ -4,6 +4,15 @@ const { getClient } = require('./command.js')
 exports.command = 'export'
 exports.describe = 'Export catalog and text data'
 exports.builder = {
+    checkpoint: {
+        type: 'string',
+        description: 'Save export progress to this new checkpoint file',
+        conflicts: 'resume'
+    },
+    resume: {
+        type: 'string',
+        description: 'Resume from a checkpoint using the same host, format, entities and output'
+    },
     entities: {
         alias: 'e',
         description: 'Which types of entities to fetch',
@@ -53,14 +62,19 @@ exports.handler = async function (options) {
 
     console.time('Export')
     return client
-        .export(options.format, [...options.entities, ...options.index], options.outputFile)
+        .export(options.format, [...options.entities, ...options.index], options.outputFile, options)
         .then(entities => {
             console.timeEnd('Export')
 
             for (const { status, reason } of entities) {
                 if (status === 'rejected') {
                     console.error(reason)
+                    process.exitCode = 1
                 }
             }
+        })
+        .catch(error => {
+            console.error(error.message)
+            process.exitCode = 1
         })
 }
